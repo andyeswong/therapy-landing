@@ -1,6 +1,8 @@
 <template>
-  <div class="min-h-screen relative">
-    <NavBar />
+  <PinScreen v-if="!authenticated" />
+
+  <div v-else class="min-h-screen relative">
+    <NavBar @logout="logout" />
     <main class="relative z-10">
       <PostItsSection />
       <ScheduleSection ref="scheduleRef" />
@@ -25,20 +27,20 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import NavBar from './components/NavBar.vue'
-import PostItsSection from './components/PostItsSection.vue'
+import { authenticated, logout } from './composables/useAuth.js'
+import NavBar          from './components/NavBar.vue'
+import PinScreen       from './components/PinScreen.vue'
+import PostItsSection  from './components/PostItsSection.vue'
 import ScheduleSection from './components/ScheduleSection.vue'
 import CalendarSection from './components/CalendarSection.vue'
-import FooterSection from './components/FooterSection.vue'
+import FooterSection   from './components/FooterSection.vue'
 
-const scheduleRef = ref(null)
+const scheduleRef      = ref(null)
 const showInstallBanner = ref(false)
 let deferredPrompt = null
 
 const handleAddAppointment = (dateStr) => {
-  if (scheduleRef.value) {
-    scheduleRef.value.openCreateModal(dateStr)
-  }
+  if (scheduleRef.value) scheduleRef.value.openCreateModal(dateStr)
 }
 
 const handleBeforeInstall = (e) => {
@@ -48,13 +50,9 @@ const handleBeforeInstall = (e) => {
 }
 
 const installApp = async () => {
-  if (!deferredPrompt) {
-    showInstallBanner.value = false
-    return
-  }
+  if (!deferredPrompt) { showInstallBanner.value = false; return }
   deferredPrompt.prompt()
-  const { outcome } = await deferredPrompt.userChoice
-  console.log('Install outcome:', outcome)
+  await deferredPrompt.userChoice
   deferredPrompt = null
   showInstallBanner.value = false
 }
@@ -68,7 +66,6 @@ onMounted(() => {
   window.addEventListener('beforeinstallprompt', handleBeforeInstall)
   window.addEventListener('appinstalled', handleAppInstalled)
 })
-
 onUnmounted(() => {
   window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
   window.removeEventListener('appinstalled', handleAppInstalled)

@@ -224,9 +224,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { persistentFetch, isOnline } from '../composables/useOffline.js'
-import { useAppointments } from '../composables/useAppointments.js'
+import { ref, computed, onMounted } from 'vue'
+import { persistentFetch } from '../composables/useOffline.js'
+import { useAppointments, loadAppointments } from '../composables/useAppointments.js'
 
 const {
   appointments,
@@ -270,6 +270,8 @@ const openCreateModal = (prefillDate) => {
 
 // Expose for CalendarSection
 defineExpose({ openCreateModal })
+
+onMounted(loadAppointments)
 
 const startEdit = (item) => {
   editingId.value = item.id
