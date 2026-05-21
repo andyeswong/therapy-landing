@@ -9,7 +9,6 @@
       <div class="text-right">
         <p class="font-mono text-[10px] text-ghost-faint">total estimado</p>
         <p class="font-mono text-base font-semibold text-teal-light">${{ totalSum.toLocaleString() }}</p>
-        <p class="font-mono text-[10px] text-ghost-muted">parcialidades</p>
       </div>
     </div>
 
@@ -126,8 +125,19 @@
             </div>
             <div class="shrink-0 text-right flex items-center gap-2">
               <div>
-                <p class="font-mono text-sm font-medium text-ghost">{{ item.price }}</p>
+                <p class="font-mono text-sm font-medium"
+                   :class="item.status === 'completada' ? 'text-ghost-faint line-through' : 'text-ghost'">
+                  {{ item.price }}
+                </p>
               </div>
+              <button @click="toggleComplete(item)"
+                      class="w-7 h-7 rounded-full border flex items-center justify-center transition-all"
+                      :class="item.status === 'completada'
+                        ? 'bg-green-500/20 border-green-500/50 text-green-400'
+                        : 'border-rim text-ghost-faint hover:border-green-500/50 hover:text-green-400'"
+                      :title="item.status === 'completada' ? 'Marcar pendiente' : 'Marcar completada'">
+                ✓
+              </button>
               <button @click="startEdit(item)" class="text-ghost-faint hover:text-teal transition-colors p-1" title="Editar">✏️</button>
             </div>
           </div>
@@ -272,6 +282,16 @@ const openCreateModal = (prefillDate) => {
 defineExpose({ openCreateModal })
 
 onMounted(loadAppointments)
+
+const toggleComplete = async (item) => {
+  const idx = appointments.value.findIndex(a => a.id === item.id)
+  if (idx === -1) return
+  appointments.value[idx] = {
+    ...appointments.value[idx],
+    status: appointments.value[idx].status === 'completada' ? 'pendiente' : 'completada',
+  }
+  await persist()
+}
 
 const startEdit = (item) => {
   editingId.value = item.id

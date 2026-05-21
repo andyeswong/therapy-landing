@@ -27,12 +27,11 @@ const appointmentsWithPrice = computed(() =>
   appointments.value.map(a => ({ ...a, price: getPrice(a) }))
 )
 
-const totalSum = computed(() => {
-  let total = prices.value.neuropsic_total || 0
-  Object.values(prices.value.alem   || {}).forEach(v => total += v)
-  Object.values(prices.value.study  || {}).forEach(v => total += v)
-  return total
-})
+const totalSum = computed(() =>
+  appointments.value
+    .filter(a => a.status !== 'completada')
+    .reduce((sum, a) => sum + getNumericPrice(a), 0)
+)
 
 const alemCount      = computed(() => appointments.value.filter(a => a.category === 'alem').length)
 const neuropsicCount = computed(() => appointments.value.filter(a => a.category === 'neuropsic').length)
