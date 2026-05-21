@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+  body {
+    @apply bg-void text-ghost font-mono;
+    font-size: 16px; line-height: 1.75;
+    background-image: url('/noise.svg');
+    background-repeat: repeat; background-size: 200px 200px;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { @apply font-serif; line-height: 1.1; letter-spacing: -0.02em; }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(21, 22, 40, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(61, 61, 96, 0.5);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .glass-card:hover {
+    border-color: rgba(20, 184, 166, 0.4);
+    box-shadow: 0 0 20px rgba(20, 184, 166, 0.12);
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-teal text-white px-5 py-2.5 text-sm font-mono font-medium tracking-wide transition-all duration-200 hover:bg-teal-light focus:outline-none focus:ring-2 focus:ring-teal focus:ring-offset-2 focus:ring-offset-void;
+    box-shadow: 0 0 16px rgba(20,184,166,0.3);
+  }
+  .btn-outline {
+    @apply inline-flex items-center gap-2 border border-rim text-ghost-muted px-5 py-2.5 text-sm font-mono font-medium tracking-wide transition-all duration-200 hover:border-teal hover:text-teal;
+  }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #252540; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #14b8a6; }
+::selection { background: rgba(20,184,166,0.3); color: #e2e0f0; }
