@@ -91,7 +91,7 @@ app.post('/api/notes', requireAuth, (req, res) => {
       'INSERT INTO notes (id,text,color,sort_order,type,url,mime_type,filename) VALUES (@id,@text,@color,@sort_order,@type,@url,@mime_type,@filename)'
     )
     notes.forEach((n, i) => ins.run({
-      id: n.id, text: n.text || '', color: n.color || null, sort_order: i,
+      id: n.id, text: n.text || '', color: n.color || '', sort_order: i,
       type: n.type || 'note', url: n.url || null, mime_type: n.mime_type || null, filename: n.filename || null,
     }))
   })()
