@@ -1,10 +1,10 @@
 <template>
-  <section id="horario" class="px-3 pt-14 pb-4">
+  <section id="horario" class="px-3 pt-4 pb-4">
     <!-- Sticky total bar -->
     <div class="sticky top-12 z-40 glass-card rounded-xl px-4 py-2.5 mb-3 flex items-center justify-between">
       <div>
-        <p class="font-mono text-[10px] text-ghost-faint uppercase tracking-widest">// agenda_clinica</p>
-        <p class="font-sans text-sm font-semibold text-ghost">Próximas Citas</p>
+        <p class="font-mono text-[10px] text-ghost-faint uppercase tracking-widest">// agenda_compartida</p>
+        <p class="font-sans text-sm font-semibold text-ghost">Citas</p>
       </div>
       <div class="text-right">
         <p class="font-mono text-[10px] text-ghost-faint">total estimado</p>
@@ -154,7 +154,7 @@
           <div class="w-1.5 h-1.5 rounded-full bg-teal animate-pulse"></div>
           <span class="font-mono text-xs text-ghost-muted">{{ alemCount }} ALEM · {{ neuropsicCount }} Neuropsic · {{ studyCount }} estudio</span>
         </div>
-        <span class="font-mono text-xs text-ghost-faint ml-auto">{{ appointments.length }} citas · Mayo–Jun 2026</span>
+        <span class="font-mono text-xs text-ghost-faint ml-auto">{{ appointments.length }} citas</span>
       </div>
     </div>
   </section>

@@ -5,9 +5,9 @@
 
       <!-- Header -->
       <div class="text-center mb-10">
-        <div class="text-5xl mb-3">🧠</div>
-        <h1 class="font-serif text-xl font-semibold text-ghost">Citas Ian</h1>
-        <p class="font-mono text-[10px] text-ghost-faint mt-1 uppercase tracking-widest">// acceso privado</p>
+        <div class="text-5xl mb-3">🫶</div>
+        <h1 class="font-serif text-xl font-semibold text-ghost">Ian</h1>
+        <p class="font-mono text-[10px] text-ghost-faint mt-1 uppercase tracking-widest">agenda compartida · acceso privado</p>
       </div>
 
       <!-- PIN dots -->

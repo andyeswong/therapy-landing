@@ -1,9 +1,9 @@
 <template>
-  <section id="notas" class="px-3 pt-14 pb-2">
+  <section id="notas" class="px-3 pt-4 pb-4">
     <div class="flex items-center justify-between mb-3">
       <div>
-        <p class="font-mono text-[10px] text-ghost-faint uppercase tracking-widest">// notas_rapidas</p>
-        <p class="font-sans text-sm font-semibold text-ghost">Post-its</p>
+        <p class="font-mono text-[10px] text-ghost-faint uppercase tracking-widest">// notas_compartidas</p>
+        <p class="font-sans text-sm font-semibold text-ghost">Notas</p>
       </div>
     </div>
 
