@@ -1,7 +1,9 @@
 import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
+import { dirname, join, extname } from 'path'
 import { createHash } from 'crypto'
+import { mkdirSync } from 'fs'
 import express from 'express'
+import multer from 'multer'
 import { getDb, PIN_HASH, createSession, validateSession } from './db.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -10,6 +12,19 @@ app.use(express.json())
 app.use(express.static(join(__dirname, '../dist')))
 
 const db = getDb()
+
+// File uploads
+const uploadsDir = join(__dirname, '../data/uploads')
+mkdirSync(uploadsDir, { recursive: true })
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => {
+    const ext = extname(file.originalname)
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`)
+  },
+})
+const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } })
+app.use('/uploads', express.static(uploadsDir))
 
 function requireAuth(req, res, next) {
   const auth = req.headers.authorization || ''
@@ -73,14 +88,25 @@ app.post('/api/notes', requireAuth, (req, res) => {
   db.transaction(() => {
     db.prepare('DELETE FROM notes').run()
     const ins = db.prepare(
-      'INSERT INTO notes (id,text,color,sort_order) VALUES (@id,@text,@color,@sort_order)'
+      'INSERT INTO notes (id,text,color,sort_order,type,url,mime_type,filename) VALUES (@id,@text,@color,@sort_order,@type,@url,@mime_type,@filename)'
     )
     notes.forEach((n, i) => ins.run({
-      id: n.id, text: n.text || '', color: n.color || 'yellow', sort_order: i,
+      id: n.id, text: n.text || '', color: n.color || null, sort_order: i,
+      type: n.type || 'note', url: n.url || null, mime_type: n.mime_type || null, filename: n.filename || null,
     }))
   })()
 
   res.json({ ok: true })
+})
+
+// File upload
+app.post('/api/notes/upload', requireAuth, upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file' })
+  res.json({
+    url: `/uploads/${req.file.filename}`,
+    mime_type: req.file.mimetype,
+    filename: req.file.originalname,
+  })
 })
 
 // SPA fallback

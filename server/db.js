@@ -67,6 +67,13 @@ function initSchema(db) {
     );
   `)
 
+  // Migration: add type/url/mime_type/filename columns to notes
+  const noteCols = db.prepare('PRAGMA table_info(notes)').all().map(c => c.name)
+  if (!noteCols.includes('type'))      db.prepare("ALTER TABLE notes ADD COLUMN type TEXT DEFAULT 'note'").run()
+  if (!noteCols.includes('url'))       db.prepare('ALTER TABLE notes ADD COLUMN url TEXT').run()
+  if (!noteCols.includes('mime_type')) db.prepare('ALTER TABLE notes ADD COLUMN mime_type TEXT').run()
+  if (!noteCols.includes('filename'))  db.prepare('ALTER TABLE notes ADD COLUMN filename TEXT').run()
+
   // Migration: add cost column to existing appointments table
   const cols = db.prepare('PRAGMA table_info(appointments)').all().map(c => c.name)
   if (!cols.includes('cost')) {

@@ -1,14 +1,25 @@
 <template>
-  <section id="horario" class="px-3 pt-4 pb-4">
-    <!-- Sticky total bar -->
-    <div class="sticky top-12 z-40 glass-card rounded-xl px-4 py-2.5 mb-3 flex items-center justify-between">
-      <div>
-        <p class="font-mono text-[10px] text-ghost-faint uppercase tracking-widest">// agenda_compartida</p>
-        <p class="font-sans text-sm font-semibold text-ghost">Citas</p>
+  <section id="horario" class="px-3 pt-0 pb-4">
+    <!-- Sticky header + filters -->
+    <div class="sticky top-0 z-40 -mx-3 px-3 pt-3 pb-2.5 mb-3 border-b border-rim/30"
+         style="background: rgba(7,8,15,0.93); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <p class="font-mono text-[10px] text-ghost-faint uppercase tracking-widest">// agenda_compartida</p>
+          <p class="font-sans text-sm font-semibold text-ghost">Citas</p>
+        </div>
+        <div class="text-right">
+          <p class="font-mono text-[10px] text-ghost-faint">total estimado</p>
+          <p class="font-mono text-base font-semibold text-teal-light">${{ totalSum.toLocaleString() }}</p>
+        </div>
       </div>
-      <div class="text-right">
-        <p class="font-mono text-[10px] text-ghost-faint">total estimado</p>
-        <p class="font-mono text-base font-semibold text-teal-light">${{ totalSum.toLocaleString() }}</p>
+      <div class="flex gap-1.5 overflow-x-auto" style="-ms-overflow-style:none;scrollbar-width:none;">
+        <button v-for="f in statusFilters" :key="f.value"
+          @click="activeFilter = f.value"
+          class="font-mono text-[10px] px-2.5 py-1 rounded-full whitespace-nowrap transition-all"
+          :class="activeFilter === f.value ? 'bg-teal/20 text-teal-bright border border-teal/40' : 'bg-surface-2 text-ghost-faint border border-rim'">
+          {{ f.label }}
+        </button>
       </div>
     </div>
 
@@ -16,16 +27,6 @@
     <div v-if="saveStatus" class="mb-3 px-3 py-1.5 rounded-lg text-xs font-mono"
          :class="saveStatus === 'saved' ? 'bg-teal-500/20 text-teal-bright' : 'bg-yellow-500/20 text-yellow-bright'">
       {{ saveStatus === 'saved' ? '✓ Cambios guardados' : 'Guardando...' }}
-    </div>
-
-    <!-- Status filter -->
-    <div class="flex gap-1.5 mb-3 overflow-x-auto pb-1">
-      <button v-for="f in statusFilters" :key="f.value"
-        @click="activeFilter = f.value"
-        class="font-mono text-[10px] px-2.5 py-1 rounded-full whitespace-nowrap transition-all"
-        :class="activeFilter === f.value ? 'bg-teal/20 text-teal-bright border border-teal/40' : 'bg-surface-2 text-ghost-faint border border-rim'">
-        {{ f.label }}
-      </button>
     </div>
 
     <div class="grid gap-2">
@@ -162,7 +163,7 @@
   <!-- Floating action button -->
   <button
     @click="openCreateModal"
-    class="fixed bottom-6 right-4 z-50 w-14 h-14 rounded-full bg-teal text-white shadow-glow-teal flex items-center justify-center text-2xl leading-none hover:bg-teal-light active:scale-95 transition-all"
+    class="fixed bottom-24 right-4 z-[60] w-14 h-14 rounded-full bg-teal text-white shadow-glow-teal flex items-center justify-center text-2xl leading-none hover:bg-teal-light active:scale-95 transition-all"
     title="Nueva cita"
     aria-label="Agregar cita"
   >+</button>
