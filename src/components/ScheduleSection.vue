@@ -59,9 +59,9 @@
               <div>
                 <label class="field-label">Categoría</label>
                 <select v-model="editForm.category" class="edit-input">
-                  <option value="neuropsic">Neuropsic</option>
-                  <option value="alem">ALEM</option>
-                  <option value="study">Estudio</option>
+                  <option value="neuropsic">Neuropsicología</option>
+                  <option value="alem">Terapia educativa</option>
+                  <option value="study">Estudio / Diagnóstico</option>
                 </select>
               </div>
               <div>
@@ -79,6 +79,8 @@
               <label class="field-label">Lugar</label>
               <select v-model="editForm.place" class="edit-input">
                 <option value="">Sin lugar</option>
+                <option value="Neuropsic - H. Ángeles">Neuropsic - H. Ángeles</option>
+                <option value="ALEM">ALEM</option>
                 <option value="Hospital Ángeles">Hospital Ángeles</option>
                 <option value="Consultorio">Consultorio</option>
                 <option value="Clínica">Clínica</option>
@@ -193,9 +195,9 @@
             <div>
               <label class="field-label">Categoría</label>
               <select v-model="createForm.category" class="edit-input">
-                <option value="neuropsic">Neuropsic</option>
-                <option value="alem">ALEM</option>
-                <option value="study">Estudio</option>
+                <option value="neuropsic">Neuropsicología</option>
+                <option value="alem">Terapia educativa</option>
+                <option value="study">Estudio / Diagnóstico</option>
               </select>
             </div>
             <div>
@@ -212,6 +214,8 @@
             <label class="field-label">Lugar</label>
             <select v-model="createForm.place" class="edit-input">
               <option value="">Sin lugar</option>
+              <option value="Neuropsic - H. Ángeles">Neuropsic - H. Ángeles</option>
+              <option value="ALEM">ALEM</option>
               <option value="Hospital Ángeles">Hospital Ángeles</option>
               <option value="Consultorio">Consultorio</option>
               <option value="Clínica">Clínica</option>
@@ -240,7 +244,6 @@ import { useAppointments, loadAppointments } from '../composables/useAppointment
 
 const {
   appointments,
-  prices,
   getNumericPrice,
   totalSum,
   alemCount,
@@ -295,7 +298,7 @@ const toggleComplete = async (item) => {
 
 const startEdit = (item) => {
   editingId.value = item.id
-  editForm.value = { ...item, cost: getNumericPrice(item) }
+  editForm.value = { ...item }
 }
 
 const cancelEdit = () => {
@@ -306,58 +309,18 @@ const cancelEdit = () => {
 const saveEdit = async (id) => {
   const idx = appointments.value.findIndex(a => a.id === id)
   if (idx === -1) return
-
-  const { cost, price, ...appointmentData } = editForm.value
-
-  if (cost !== undefined && cost !== null) {
-    const oldCategory = appointments.value[idx].category
-    const oldTitle = appointments.value[idx].title
-    const newCategory = appointmentData.category
-    const newTitle = appointmentData.title
-
-    if (newCategory === 'neuropsic') {
-      const nCount = appointments.value.filter(a => a.category === 'neuropsic').length
-      prices.value.neuropsic_total = cost * nCount
-    } else if (newCategory === 'alem') {
-      if (!prices.value.alem) prices.value.alem = {}
-      prices.value.alem[newTitle] = cost
-      if (oldCategory === 'alem' && oldTitle !== newTitle) delete prices.value.alem[oldTitle]
-    } else if (newCategory === 'study') {
-      if (!prices.value.study) prices.value.study = {}
-      prices.value.study[newTitle] = cost
-      if (oldCategory === 'study' && oldTitle !== newTitle) delete prices.value.study[oldTitle]
-    }
-  }
-
-  appointments.value[idx] = { ...appointmentData }
+  const { price, ...data } = editForm.value
+  appointments.value[idx] = { ...data, cost: Number(data.cost) || 0 }
   editingId.value = null
   await persist()
 }
 
 const submitCreate = async () => {
-  const { cost, ...apptData } = createForm.value
-  if (!apptData.title || !apptData.date) return
-
+  if (!createForm.value.title || !createForm.value.date) return
   const newId = appointments.value.length > 0
     ? Math.max(...appointments.value.map(a => a.id)) + 1
     : 1
-
-  const newAppt = { id: newId, ...apptData }
-
-  if (cost !== undefined && cost !== null && cost !== '') {
-    if (newAppt.category === 'neuropsic') {
-      const nCount = appointments.value.filter(a => a.category === 'neuropsic').length + 1
-      prices.value.neuropsic_total = cost * nCount
-    } else if (newAppt.category === 'alem') {
-      if (!prices.value.alem) prices.value.alem = {}
-      prices.value.alem[newAppt.title] = cost
-    } else if (newAppt.category === 'study') {
-      if (!prices.value.study) prices.value.study = {}
-      prices.value.study[newAppt.title] = cost
-    }
-  }
-
-  appointments.value.push(newAppt)
+  appointments.value.push({ id: newId, ...createForm.value, cost: Number(createForm.value.cost) || 0 })
   showCreateModal.value = false
   await persist()
 }
@@ -368,7 +331,7 @@ const persist = async () => {
     await persistentFetch('/api/appointments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ appointments: appointments.value, prices: prices.value }),
+      body: JSON.stringify({ appointments: appointments.value }),
     })
     saveStatus.value = 'saved'
     setTimeout(() => { saveStatus.value = null }, 2000)

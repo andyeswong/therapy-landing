@@ -48,16 +48,14 @@ app.post('/api/appointments', requireAuth, (req, res) => {
   db.transaction(() => {
     db.prepare('DELETE FROM appointments').run()
     const ins = db.prepare(
-      'INSERT INTO appointments (id,date,time,title,place,category,status) VALUES (@id,@date,@time,@title,@place,@category,@status)'
+      'INSERT INTO appointments (id,date,time,title,place,category,status,cost) VALUES (@id,@date,@time,@title,@place,@category,@status,@cost)'
     )
     appointments.forEach(a => ins.run({
       id: a.id, date: a.date, time: a.time || '',
       title: a.title, place: a.place || '',
       category: a.category, status: a.status || 'pendiente',
+      cost: a.cost ?? 0,
     }))
-    if (prices) {
-      db.prepare("INSERT OR REPLACE INTO config (key,value) VALUES ('prices',?)").run(JSON.stringify(prices))
-    }
   })()
 
   res.json({ ok: true })

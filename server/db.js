@@ -45,7 +45,8 @@ function initSchema(db) {
       title    TEXT NOT NULL,
       place    TEXT NOT NULL DEFAULT '',
       category TEXT NOT NULL DEFAULT 'neuropsic',
-      status   TEXT NOT NULL DEFAULT 'pendiente'
+      status   TEXT NOT NULL DEFAULT 'pendiente',
+      cost     REAL NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS notes (
@@ -66,18 +67,43 @@ function initSchema(db) {
     );
   `)
 
+  // Migration: add cost column to existing appointments table
+  const cols = db.prepare('PRAGMA table_info(appointments)').all().map(c => c.name)
+  if (!cols.includes('cost')) {
+    db.prepare('ALTER TABLE appointments ADD COLUMN cost REAL NOT NULL DEFAULT 0').run()
+    // Populate cost from prices config for existing rows
+    try {
+      const row = db.prepare("SELECT value FROM config WHERE key='prices'").get()
+      if (row) {
+        const prices = JSON.parse(row.value)
+        const nCount = db.prepare("SELECT COUNT(*) as c FROM appointments WHERE category='neuropsic'").get().c
+        const perSession = nCount > 0 ? Math.round(prices.neuropsic_total / nCount) : 0
+        db.prepare("UPDATE appointments SET cost=? WHERE category='neuropsic'").run(perSession)
+        Object.entries(prices.alem   || {}).forEach(([title, val]) =>
+          db.prepare("UPDATE appointments SET cost=? WHERE category='alem' AND title=?").run(val, title))
+        Object.entries(prices.study  || {}).forEach(([title, val]) =>
+          db.prepare("UPDATE appointments SET cost=? WHERE category='study' AND title=?").run(val, title))
+      }
+    } catch {}
+  }
+
   // One-time seed from JSON files
   if (db.prepare('SELECT COUNT(*) as c FROM appointments').get().c === 0) {
     try {
-      const { appointments } = JSON.parse(readFileSync(APPTS_JSON, 'utf-8'))
+      const { appointments, prices } = JSON.parse(readFileSync(APPTS_JSON, 'utf-8'))
+      const nCount = appointments.filter(a => a.category === 'neuropsic').length
+      const perSession = nCount > 0 ? Math.round(prices.neuropsic_total / nCount) : 0
       const ins = db.prepare(
-        'INSERT INTO appointments (id,date,time,title,place,category,status) VALUES (@id,@date,@time,@title,@place,@category,@status)'
+        'INSERT INTO appointments (id,date,time,title,place,category,status,cost) VALUES (@id,@date,@time,@title,@place,@category,@status,@cost)'
       )
-      db.transaction(rows => rows.forEach(a => ins.run({
-        id: a.id, date: a.date, time: a.time || '',
-        title: a.title, place: a.place || '',
-        category: a.category, status: a.status || 'pendiente'
-      })))(appointments)
+      db.transaction(rows => rows.forEach(a => {
+        let cost = 0
+        if (a.category === 'neuropsic') cost = perSession
+        else if (a.category === 'alem')  cost = prices.alem[a.title]  || 0
+        else if (a.category === 'study') cost = prices.study[a.title] || 0
+        ins.run({ id: a.id, date: a.date, time: a.time || '', title: a.title,
+                  place: a.place || '', category: a.category, status: a.status || 'pendiente', cost })
+      }))(appointments)
     } catch {}
   }
 
