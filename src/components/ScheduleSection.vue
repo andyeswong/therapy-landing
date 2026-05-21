@@ -80,7 +80,7 @@
               <label class="field-label">Lugar</label>
               <select v-model="editForm.place" class="edit-input">
                 <option value="">Sin lugar</option>
-                <option value="Neuropsic - H. Ángeles">Neuropsic - H. Ángeles</option>
+                <option value="Neuropsic">Neuropsic</option>
                 <option value="ALEM">ALEM</option>
                 <option value="Hospital Ángeles">Hospital Ángeles</option>
                 <option value="Consultorio">Consultorio</option>
@@ -215,7 +215,7 @@
             <label class="field-label">Lugar</label>
             <select v-model="createForm.place" class="edit-input">
               <option value="">Sin lugar</option>
-              <option value="Neuropsic - H. Ángeles">Neuropsic - H. Ángeles</option>
+              <option value="Neuropsic">Neuropsic</option>
               <option value="ALEM">ALEM</option>
               <option value="Hospital Ángeles">Hospital Ángeles</option>
               <option value="Consultorio">Consultorio</option>
